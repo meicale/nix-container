@@ -1,16 +1,21 @@
 ARG USER=vscode
 ARG UID=1000
 ARG GID=${UID}
-
+ARG NIX_VERSION=nix-2.13.2
 FROM debian:stable-slim as base
 
 ARG USER
 ARG UID
 ARG GID
-ARG NIX_INSTALLER=https://nixos.org/nix/install
+ARG NIX_VERSION
+# ARG NIX_INSTALLER=https://nixos.org/nix/install
+ARG NIX_INSTALLER=https://mirrors.tuna.tsinghua.edu.cn/nix/${NIX_VERSION}/install
 
 # Set shell and check for pipe fails
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# this is for some intra-network which is blocled
+RUN sed -i "s/deb.debian.org/mirrors.ustc.edu.cn/g" /etc/apt/sources.list
 
 # Install deps required by Nix installer
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
@@ -26,8 +31,10 @@ RUN groupadd -g ${GID} ${USER} && \
 # Configure sudo and Nix
 RUN sed -i 's/%sudo.*ALL/%sudo   ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers && \
     echo "sandbox = false" > /etc/nix.conf && \
-    echo "experimental-features = nix-command flakes" >> /etc/nix.conf
-
+    echo "experimental-features = nix-command flakes" >> /etc/nix.conf && \
+    echo "substituters = https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store https://cache.nixos.org/" >> /etc/nix.conf
+# need use the mirror cache to download nix-command
+    
 # Install Nix and enable flakes
 USER ${USER}
 ENV USER=${USER}
@@ -99,11 +106,14 @@ RUN mkdir -p /home/${USER}/.vscode-server/extensions && \
 # Switch to home-manager environment
 WORKDIR /home/${USER}/.config/devcontainer
 ENV USER=${USER}
+ARG NIX_VERSION
 RUN . /home/${USER}/.nix-profile/etc/profile.d/nix.sh && \
-    nix-env --set-flag priority 10 nix-2.8.1 && \
+    nix-env --set-flag priority 10 ${NIX_VERSION} && \
     "$(nix path-info .#homeConfigurations.${USER}.activationPackage)"/activate
+    #nix version should be the same of one from the shell
 
 # Copy entrypoint
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]
+
