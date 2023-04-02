@@ -14,11 +14,9 @@ ARG NIX_INSTALLER=https://mirrors.tuna.tsinghua.edu.cn/nix/${NIX_VERSION}/instal
 # Set shell and check for pipe fails
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# this is for some intra-network which is blocled
-RUN sed -i "s/deb.debian.org/mirrors.ustc.edu.cn/g" /etc/apt/sources.list
-
 # Install deps required by Nix installer
-RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+RUN sed -i "s/deb.debian.org/mirrors.ustc.edu.cn/g" /etc/apt/sources.list && \
+    apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     sudo \

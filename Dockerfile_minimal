@@ -1,0 +1,31 @@
+# syntax = docker/dockerfile:experimental
+FROM alpine:edge AS base
+WORKDIR /root
+SHELL ["/bin/sh", "-c"]
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+RUN apk add git openssh-client neovim man-pages alpine-sdk zsh curl --update
+
+# install deps needed by neovim
+RUN apk add wget gzip neovim-doc ripgrep nodejs npm --update
+
+# pre-download lazy.nvim
+RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+RUN --mount=type=ssh git clone --filter=blob:none git@github.com:folke/lazy.nvim.git --branch=stable /root/.local/share/nvim/lazy/lazy.nvim
+
+
+# copy project files
+COPY .zshrc .zshrc
+COPY projects projects
+COPY nvim .config/nvim
+
+# # copy these hidden folders during development for faster
+# # loading of lazy.nvim, mason, and treesitter
+# COPY .cache /root/.cache
+# COPY .local /root/.local
+
+FROM base
+SHELL ["/bin/zsh", "-c"]
+WORKDIR /root
+RUN nvim --headless +"Lazy! sync" +qa
+CMD ["/bin/zsh"]

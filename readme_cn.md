@@ -20,6 +20,7 @@
 - [] neovim 基础配置
   - [x] 基于git@github.com:meicale/Neovim-from-scratch.git，原生的neovim配置
   - [x] 核心：跳转的配置，移动的配置
+  - [] optional, 使用docker 容器配置的通用的neovim mini版本，详见dockerfile_minimal，将包括lazyvim等配置为项目的submoduel。考虑到需要调整部分的代码，使用相应的fork版本。
 - [] nixpkg 的支持
   - [] 基于nix对neovim进行配置
   - [] git@github.com:meicale/.nix_dotfiles.git 目前不太容易配置，原因包括网络不稳定等，nixpkg中的包更新很难。
@@ -29,5 +30,7 @@
   - [] remote lsp 支持，目前使用distant.nvim 方案，在dev-container环境出现bug，待作者反馈。
   - [] remote neotest 支持，目前python相关的config 比较复杂，待作者反馈。
 - [] 键统一配置
+  - [] 架构与层次:三层架构，基础为OS上的Tiling Windows Manager（比如awesome 等），终端模拟器上的复用工具（比如zellij等），终端中的modual编辑器（比如neovim等）
+
 
 ## 主要结果
