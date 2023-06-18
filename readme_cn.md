@@ -32,5 +32,9 @@
 - [] 键统一配置
   - [] 架构与层次:三层架构，基础为OS上的Tiling Windows Manager（比如awesome 等），终端模拟器上的复用工具（比如zellij等），终端中的modual编辑器（比如neovim等）
 
+## 关于系统的结构
+- host系统：Windows 11
+ - docker 容器（wsl2）： nixpkg abled Ubuntu or nixos
+ - 使用特定的volume 目录缓存所有的nixpkg, 并且需要以多用户的方式安装nix相关工具
 
 ## 主要结果
